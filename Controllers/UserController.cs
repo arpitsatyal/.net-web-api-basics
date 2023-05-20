@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using webapi.interfaces;
 using webapi.Models;
 
 namespace webapi.Controllers;
@@ -8,46 +9,34 @@ namespace webapi.Controllers;
 public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
-    private readonly AppDbContext dbContext;
+    private readonly IUser _userRepo;
 
-    public UserController(ILogger<UserController> logger, AppDbContext dbContext)
+    public UserController(ILogger<UserController> logger, IUser userRepo)
     {
         _logger = logger;
-        this.dbContext = dbContext;
+        _userRepo = userRepo;
     }
 
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok(
-            dbContext.Users.ToList()
-        );
+        return Ok(_userRepo.GetAll());
     }
 
     [HttpPost]
     public async Task<IActionResult> Post(AddUsers addUsers)
     {
-        var user = new User()
-        {
-            Id = new Random().Next(),
-            Email = addUsers.Email,
-            Username = addUsers.Username
-        };
-        await dbContext.Users.AddAsync(user);
-        await dbContext.SaveChangesAsync();
-        return Ok(user);
+        var newUser = await _userRepo.Add(addUsers);
+        return Ok(newUser);
     }
     [HttpPut]
     [Route("{id:int}")]
 
     public async Task<IActionResult> Put([FromRoute] int id, UpdateUsers updateUsers)
     {
-        var user = await dbContext.Users.FindAsync(id);
+        var user = await _userRepo.Update(id, updateUsers);
         if (user != null)
         {
-            user.Email = updateUsers.Email;
-            user.Username = updateUsers.Username;
-            await dbContext.SaveChangesAsync();
             return Ok(user);
         }
         return NotFound();
@@ -57,12 +46,10 @@ public class UserController : ControllerBase
 
     public async Task<IActionResult> Remove([FromRoute] int id)
     {
-        var user = await dbContext.Users.FindAsync(id);
-        if (user != null)
+        var doesUserExist = await _userRepo.Remove(id);
+        if (doesUserExist)
         {
-            dbContext.Remove(user);
-            await dbContext.SaveChangesAsync();
-            return Ok(true);
+            return Ok(doesUserExist);
         }
         return NotFound();
     }
