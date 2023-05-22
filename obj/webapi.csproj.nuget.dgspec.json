@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/leapfrog/Documents/webapi/webapi.csproj": {}
+    "/home/leapfrog/Documents/web-api/webapi.csproj": {}
   },
   "projects": {
-    "/home/leapfrog/Documents/webapi/webapi.csproj": {
+    "/home/leapfrog/Documents/web-api/webapi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/leapfrog/Documents/webapi/webapi.csproj",
+        "projectUniqueName": "/home/leapfrog/Documents/web-api/webapi.csproj",
         "projectName": "webapi",
-        "projectPath": "/home/leapfrog/Documents/webapi/webapi.csproj",
+        "projectPath": "/home/leapfrog/Documents/web-api/webapi.csproj",
         "packagesPath": "/home/leapfrog/.nuget/packages/",
-        "outputPath": "/home/leapfrog/Documents/webapi/obj/",
+        "outputPath": "/home/leapfrog/Documents/web-api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/leapfrog/.nuget/NuGet/NuGet.Config"
@@ -38,6 +38,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.Azure.Cosmos": {
+              "target": "Package",
+              "version": "[3.34.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[7.0.5, )"
