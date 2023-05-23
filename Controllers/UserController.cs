@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using webapi.interfaces;
+using webapi.Services;
 using webapi.Models;
 
 namespace webapi.Controllers;
@@ -8,49 +8,36 @@ namespace webapi.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
-    private readonly IUser _userRepo;
+    private readonly CosmosDbService _cosmosDbService;
 
-    public UserController(ILogger<UserController> logger, IUser userRepo)
+    public UserController(CosmosDbService cosmosDbService)
     {
-        _logger = logger;
-        _userRepo = userRepo;
+        _cosmosDbService = cosmosDbService;
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        return Ok(_userRepo.GetAll());
+        var query = "SELECT * FROM c";
+        var items = await _cosmosDbService.GetItemsAsync(query);
+
+        return Ok(items);
     }
 
     [HttpPost]
     public async Task<IActionResult> Post(AddUsers addUsers)
     {
-        var newUser = await _userRepo.Add(addUsers);
+        var newUser = await _cosmosDbService.AddItemAsync(addUsers);
         return Ok(newUser);
     }
+
+
     [HttpPut]
-    [Route("{id:int}")]
-
-    public async Task<IActionResult> Put([FromRoute] int id, UpdateUsers updateUsers)
+    [Route("{id}")]
+    public async Task<IActionResult> Put([FromRoute] string id, UpdateUsers updateUsers)
     {
-        var user = await _userRepo.Update(id, updateUsers);
-        if (user != null)
-        {
-            return Ok(user);
-        }
-        return NotFound();
+        var updatedUser = await _cosmosDbService.EditItemAsync(id, updateUsers);
+        return Ok(updatedUser);
     }
-    [HttpDelete]
-    [Route("{id:int}")]
-
-    public async Task<IActionResult> Remove([FromRoute] int id)
-    {
-        var doesUserExist = await _userRepo.Remove(id);
-        if (doesUserExist)
-        {
-            return Ok(doesUserExist);
-        }
-        return NotFound();
-    }
+  
 }
