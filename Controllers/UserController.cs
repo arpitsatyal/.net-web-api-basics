@@ -39,5 +39,21 @@ public class UserController : ControllerBase
         var updatedUser = await _cosmosDbService.EditItemAsync(id, updateUsers);
         return Ok(updatedUser);
     }
+
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] string id)
+    {
+        var updatedUser = await _cosmosDbService.DeleteItemAsync(id);
+        return Ok(updatedUser);
+    }
+
+    [HttpPost]
+    [Route("contact/{id}")]
+    public async Task<IActionResult> CreateContact([FromRoute] string id, AddContact addContact)
+    {
+        var newContact = await _cosmosDbService.AddContactToUserAsync(id, addContact);
+        return Ok(newContact);
+    }
   
 }

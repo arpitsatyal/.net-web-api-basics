@@ -1,5 +1,4 @@
 using webapi.Models;
-using webapi.interfaces;
 using webapi.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<CosmosDbService>(sp =>
 {
     var connectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-    var databaseId = "user";
+    var databaseId = "users";
     var containerId = "test-container";
     return new CosmosDbService(connectionString, databaseId, containerId);
 });

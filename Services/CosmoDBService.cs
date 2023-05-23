@@ -13,7 +13,7 @@ public class CosmosDbService
     {
         _client = new CosmosClient(connectionString);
         _database = _client.CreateDatabaseIfNotExistsAsync(databaseId).GetAwaiter().GetResult();
-        _container = _database.CreateContainerIfNotExistsAsync(containerId, "/kathmandu").GetAwaiter().GetResult();
+        _container = _database.CreateContainerIfNotExistsAsync(containerId, "/id").GetAwaiter().GetResult();
     }
 
     public async Task<IEnumerable<webapi.Models.User>> GetItemsAsync(string query)
@@ -36,7 +36,7 @@ public class CosmosDbService
     {
         var newUser = new webapi.Models.User()
         {
-            Id = new Random().Next(1000).ToString(),
+            Id = Guid.NewGuid().ToString(),
             Username = user.Username,
             Email = user.Email,
             Contacts = new List<Contact>()
@@ -56,6 +56,38 @@ public class CosmosDbService
     ItemResponse<webapi.Models.User> response = await _container.ReplaceItemAsync(user.Resource, userId, new PartitionKey(userId));
     
     return response.Resource;
+    }
+
+    public async Task<bool> DeleteItemAsync(string userId)
+    {
+   ItemResponse<dynamic> response =  await _container.DeleteItemAsync<dynamic>(userId, new PartitionKey(userId));
+    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+    {
+    return true;
+    }
+    else
+    {
+    return false;
+    }
+    }
+
+    public async Task<webapi.Models.Contact> AddContactToUserAsync(string userId, AddContact contact)
+    {
+        var newContact = new webapi.Models.Contact()
+        {
+            Id = Guid.NewGuid().ToString(),
+            PhoneNumber = contact.PhoneNumber,
+            Address = contact.Address,
+            UserId = userId
+        };
+
+        ItemResponse<webapi.Models.User> response = await _container.ReadItemAsync<webapi.Models.User>(userId, new PartitionKey(userId));
+        webapi.Models.User user = response.Resource;
+
+
+        user.Contacts.Add(newContact);
+        await _container.ReplaceItemAsync(user, user.Id, new PartitionKey(user.Id));
+        return newContact;
     }
 
 }
